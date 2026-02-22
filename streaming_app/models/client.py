@@ -5,6 +5,7 @@ Hérite de Personne et peut posséder plusieurs cartes de crédit.
 """
 
 from models.personne import Personne
+from utils import hasher_mot_de_passe
 
 
 class Client(Personne):
@@ -28,7 +29,8 @@ class Client(Personne):
         super().__init__(nom, prenom, sexe)
         self.date_inscription = date_inscription
         self.courriel = courriel
-        self.mot_de_passe = mot_de_passe
+        # Stocker le hash SHA-256, jamais le mot de passe en clair
+        self.mot_de_passe_hash = hasher_mot_de_passe(mot_de_passe)
         self.cartes_credit = []   # Un client peut avoir plusieurs cartes de crédit
 
     def ajouter_carte_credit(self, carte):
@@ -52,6 +54,7 @@ class Client(Personne):
         if len(mot_de_passe) < 8:
             raise ValueError("Le mot de passe doit contenir au moins 8 caractères.")
 
+        # Le constructeur de Client hashera automatiquement le mot de passe
         nouveau_client = Client(nom, prenom, sexe, date_inscription, courriel, mot_de_passe)
         cls.clients_list.append(nouveau_client)
         return nouveau_client
@@ -84,7 +87,8 @@ class Client(Personne):
                 client.prenom = prenom
                 client.sexe = sexe
                 client.courriel = nouveau_courriel
-                client.mot_de_passe = mot_de_passe
+                # Hasher le nouveau mot de passe avant de le stocker
+                client.mot_de_passe_hash = hasher_mot_de_passe(mot_de_passe)
                 return
 
         raise ValueError("Client introuvable.")
